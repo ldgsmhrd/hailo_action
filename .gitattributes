@@ -1,0 +1,6 @@
+# 텍스트 줄바꿈 통일
+*.py    text eol=lf
+*.sh    text eol=lf
+*.md    text eol=lf
+
+# 바이너리 모델 파일은 .gitignore 로 제외 — LFS 미사용

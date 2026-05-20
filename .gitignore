@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+build/
+dist/
+.installed.cfg
+*.egg
+
+# 가상환경
+venv/
+.venv/
+env/
+ENV/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 학습 산출물
+data/
+runs/
+logs/
+*.log
+
+# 학습 중간 산출물 (모델은 LFS 로 별도 관리)
+*.pth
+*.pt
+*.ckpt
+*.har
+
+# 테스트 / 임시
+*.tmp
+test_batch*.npz
+stream_snapshot_*.jpg
+/tmp/
+
+# Hailo 컴파일 로그
+compile_*.log
+hailort.log
+hailo_sdk*.log
+allocator.log
+pyhailort.log
+acceleras.log
+
+# Docker
+docker/.env
+docker/data/
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 모델 작업 파일
+*.har
+*_compiled.har
+*_quantized.har
+
+# 모델 바이너리 전부 제외 (Git 에 안 올림)
+models/*
+!models/README.md
+*.hef
+*.onnx
+*.pth
+*.pt
+*.npy
+*.npz
+*.tflite
