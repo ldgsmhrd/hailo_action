@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Data + checkpoints (별도 release 로 제공)
+data/
+*.npy
+*.npz
+*.pth
+*.onnx
+*.hef
+*.har
+
+# 예외: 작은 sample / config 파일은 유지
+!configs/*.yaml
+!psp_net/dataset/*.npy_template
+
+# Logs / temp
+*.log
+/tmp/
+logs/
+results/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build / docs
+dist/
+build/
+docs/_build/

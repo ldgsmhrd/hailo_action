@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+title: "PSP-Net: 엣지 NPU 정수 양자화 배포를 위한 부위 분할 합성곱 기반 스켈레톤 행동 인식"
+message: "If you use this software or refer to the paper, please cite as below."
+type: software
+authors:
+  - given-names: Donggyun
+    family-names: Lee
+    email: ldg@safemotion.kr
+repository-code: "https://github.com/ldg/psp-net"
+license: Apache-2.0
+preferred-citation:
+  type: article
+  title: "PSP-Net: Body-Part Partitioned Convolution for INT8-Quantized Skeleton Action Recognition on Edge NPUs"
+  authors:
+    - given-names: Donggyun
+      family-names: Lee
+      email: ldg@safemotion.kr
+  journal: "Journal of Real-Time Image Processing"
+  year: 2026
+  publisher:
+    name: Springer

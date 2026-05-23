@@ -1,0 +1,48 @@
+# NTU120 Cross-Subject 학습 config — PSP-Net (MB4), NTU120-specific tuned
+# 결과: 79.74 % (baseline 79.04 % 대비 +0.70 %p)
+#
+# 주의: NTU60 hyperparameter (base_ch=64, epoch=120, LR=0.05) 그대로 사용 시 79.04 %.
+#       NTU120 의 약 80 % 표현 한계가 관찰됨 (paper Section 4.3.4).
+
+model:
+  name: psp_mb4
+  num_classes: 120
+  in_channels: 24
+  base_ch: 96         # ↑ scaled from NTU60 default 64
+
+data:
+  dataset: ntu120
+  benchmark: xsub
+  npy_root: data/ntu120/npy   # NTU60 + NTU120 (S001-S032) 통합 디렉토리
+  frames_per_clip: 64
+  num_joints: 25
+  use_3d: true
+  use_body: -1
+  use_bone_motion: true
+
+training:
+  optimizer: SGD
+  lr: 0.03            # ↓ (NTU60 0.05 → 0.03, capacity 증가 시 안정성)
+  momentum: 0.9
+  nesterov: true
+  weight_decay: 0.0001
+  lr_schedule: cosine
+  warmup_epochs: 8    # ↑ (5 → 8, 더 큰 모델 안정화)
+  batch_size: 64
+  num_workers: 8
+  epochs: 200         # ↑ (120 → 200, 데이터 2배 → 학습 더 필요)
+  amp: false
+  label_smoothing: 0.1
+  mixup_alpha: 0.2
+  mixup_prob: 0.5
+
+augment:
+  flip_prob: 0.5
+  rotation_deg: 15
+  scale_range: 0.15
+  translation_range: 0.10
+  coord_noise_sigma: 0.01
+  temporal_shift: 5
+  joint_dropout_p: 0.05
+
+seed: 42

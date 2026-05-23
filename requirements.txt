@@ -1,0 +1,19 @@
+# PSP-Net: training + evaluation 의존성
+# Python 3.10+ 권장
+
+# Core
+torch>=2.0
+numpy>=1.24
+pyyaml>=6.0
+
+# Optional: ONNX export
+onnx>=1.14
+onnxruntime>=1.15
+
+# Optional: figures / plots
+matplotlib>=3.7
+
+# Note: Hailo NPU 배포는 별도 의존성
+#   - HailoRT (Python bindings): sudo apt install hailo-all  (Raspberry Pi OS)
+#   - Hailo Dataflow Compiler (DFC): Hailo 공식 docker 이미지 사용
+#   자세한 안내는 docs/DEPLOY.md 참고

@@ -1,0 +1,45 @@
+# NTU60 Cross-Subject 학습 config — PSP-Net (MB4)
+# 결과: 3-seed mean 86.37 ± 0.06 %, with TTA 86.76 ± 0.22 %
+
+model:
+  name: psp_mb4
+  num_classes: 60
+  in_channels: 24     # 3D + use_body=-1 + bone_motion
+  base_ch: 64
+
+data:
+  dataset: ntu60
+  benchmark: xsub     # 또는 xview (NTU60 Cross-View)
+  npy_root: data/ntu60/npy
+  frames_per_clip: 64
+  num_joints: 25
+  use_3d: true
+  use_body: -1        # -1 = concat both bodies
+  use_bone_motion: true
+
+training:
+  optimizer: SGD
+  lr: 0.05
+  momentum: 0.9
+  nesterov: true
+  weight_decay: 0.0001
+  lr_schedule: cosine
+  warmup_epochs: 5
+  batch_size: 64
+  num_workers: 8
+  epochs: 120
+  amp: false
+  label_smoothing: 0.1
+  mixup_alpha: 0.2
+  mixup_prob: 0.5
+
+augment:
+  flip_prob: 0.5
+  rotation_deg: 15
+  scale_range: 0.15
+  translation_range: 0.10
+  coord_noise_sigma: 0.01
+  temporal_shift: 5
+  joint_dropout_p: 0.05
+
+seed: 42
