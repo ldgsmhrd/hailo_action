@@ -27,10 +27,10 @@ def main():
     ap.add_argument('--ckpt', required=True)
     ap.add_argument('--out', required=True, help='Output ONNX path')
     ap.add_argument('--model', default='mb4',
-                    choices=['psp_net', 'psp_mb_3d', 'mb4', 'psp_mb4'])
+                    choices=['mb4', 'psp_mb4', 'mb4_2d', 'psp_mb4_2d'])
     ap.add_argument('--in-channels', type=int, default=24,
-                    help='6 (2D 1body), 12 (2D 2body), 9 (3D 1body), '
-                         '18 (3D 2body), 24 (3D 2body + bone motion)')
+                    help='24 (MB4-3D: 3D xyz + 2body + bone motion), '
+                         '16 (MB4-2D: 2D xy + 2body + bone motion)')
     ap.add_argument('--num-classes', type=int, default=60,
                     help='60 (NTU60) or 120 (NTU120)')
     ap.add_argument('--base-ch', type=int, default=64)

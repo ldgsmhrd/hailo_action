@@ -2,6 +2,15 @@
 
 본 문서는 [PAPER_KO.md](../paper/PAPER_KO.md) 의 주요 결과를 빠르게 참조할 수 있도록 정리한 요약입니다.
 
+> **공개 모델 (v1.0): MB4-3D (3D 입력) + MB4-2D (2D 입력) 두 가지.**
+> 본 요약표 중 `MB-2D` / `MB-3D` (2-branch) 등은 개발 과정의 변종 비교(ablation)이며, 배포 대상이 아닙니다. `MB4` = **MB4-3D** (24ch 3D 입력), `MB4-2D` = 2D 입력 변종(16ch).
+>
+> **INT8 배포 (QAT, optimization_level=4 + finetune):**
+> | 모델 | FP32 | INT8 (QAT) | 손실 |
+> |---|---:|---:|---:|
+> | MB4-3D | 86.29 % | **85.50 %** | −1.35 %p (PTQ 85.20 대비 +0.30) |
+> | MB4-2D | 84.36 % | **82.17 %** | −2.63 %p (PTQ 80.86 대비 +1.31) |
+
 ## NTU60 Cross-Subject (학계 표준 평가)
 
 ### 3-seed mean ± std (paper Table B)

@@ -1,0 +1,5 @@
+# PSP-Net MB4 / MB4-2D QAT (Quantization-Aware finetune)
+# GPU 필요: docker run --gpus '"device=N"' (nvidia-container-toolkit)
+# 8bit 유지하며 PTQ 대비 정확도 회복 (MB4-3D +0.30%p, MB4-2D +1.31%p)
+model_optimization_flavor(optimization_level=4, compression_level=0)
+post_quantization_optimization(finetune, policy=enabled, learning_rate=0.0001, epochs=8, dataset_size=4000, batch_size=8)

@@ -4,36 +4,33 @@ Pre-trained PyTorch (`.pth`) 와 Hailo (`.hef`) 체크포인트는 본 repositor
 
 ## 다운로드 위치
 
-[**GitHub Releases v1.0.0**](https://github.com/ldg/psp-net/releases/tag/v1.0.0)
+[**GitHub Releases v1.0.0**](https://github.com/ldgsmhrd/hailo_action/releases/tag/v1.0.0)
 
-## 파일 목록
+본 저장소는 **MB4-3D**(3D 입력)와 **MB4-2D**(2D 입력) 두 모델만 제공합니다.
 
 ### PyTorch FP32 체크포인트
-| 파일 | 크기 | 정확도 | Config |
-|---|---|---|---|
-| `best_ntu60_mb4_xsub.pth` | ~5.8 MB | 86.29 % | `configs/ntu60_psp_mb4.yaml` |
-| `best_ntu60_mb_3d_xsub.pth` | ~6.1 MB | 85.27 % | `configs/ntu60_psp_mb_3d.yaml` |
-| `best_ntu60_mb_2d_xsub.pth` | ~5.8 MB | 83.13 % | (configs/ntu60_psp_mb_2d.yaml) |
-| `best_ntu60_mb4_xview.pth` | ~5.8 MB | 91.16 % | `--benchmark xview` |
-| `best_ntu60_mb_3d_xview.pth` | ~6.1 MB | 90.42 % | `--benchmark xview` |
-| `best_ntu120_mb4_tuned.pth` | ~12 MB | 79.74 % | `configs/ntu120_psp_mb4_tuned.yaml` |
-| `best_ntu120_mb_3d_tuned.pth` | ~12 MB | 79.63 % | `configs/ntu120_psp_mb_3d_tuned.yaml` |
+| 파일 | 모델 | 크기 | 정확도 | Config |
+|---|---|---|---|---|
+| `best_mb4_xsub.pth` | MB4-3D | ~5.8 MB | 86.29 % (NTU60 CS) | `configs/ntu60_psp_mb4.yaml` |
+| `best_mb4_2d_xsub.pth` | MB4-2D | ~5.4 MB | 84.36 % (NTU60 CS) | `configs/ntu60_psp_mb4_2d.yaml` |
+| `best_mb4_xview.pth` | MB4-3D | ~5.8 MB | 91.16 % (NTU60 CV) | `--benchmark xview` |
+| `best_ntu120_mb4_tuned.pth` | MB4-3D | ~12 MB | 79.74 % (NTU120 CSub) | `configs/ntu120_psp_mb4_tuned.yaml` |
 
-### Hailo HEF 체크포인트
-| 파일 | 크기 | 정확도 | 대상 |
-|---|---|---|---|
-| `psp_mb4_h8.hef` | ~4.1 MB | 84.37 % | Hailo-8 (검증 보드) |
-| `psp_mb4_h8l.hef` | ~6.2 MB | 84.35 % | Hailo-8L (Pi5) |
-| `psp_mb_3d_h8.hef` | ~2.6 MB | 84.71 % | Hailo-8 |
-| `psp_mb_3d_h8l.hef` | ~2.6 MB | 84.81 % | Hailo-8L (Pi5) |
-| `psp_mb_2d_h8.hef` | ~2.7 MB | 82.39 % | Hailo-8 |
-| `psp_mb4_ntu120_h8.hef` | ~4.1 MB | 75.10 % | Hailo-8 (NTU120) |
-| `psp_mb_3d_ntu120_h8.hef` | ~2.7 MB | 78.18 % | Hailo-8 (NTU120) |
+### Hailo HEF 체크포인트 (INT8, QAT)
+| 파일 | 모델 | 크기 | 정확도 | 대상 |
+|---|---|---|---|---|
+| `psp_mb4_h8.hef` | MB4-3D | ~4.1 MB | 85.50 % | Hailo-8 |
+| `psp_mb4_h8l.hef` | MB4-3D | ~6.2 MB | 85.50 % | Hailo-8L (Pi5) |
+| `psp_mb4_2d_h8.hef` | MB4-2D | ~4.1 MB | 82.17 % | Hailo-8 |
+| `psp_mb4_2d_h8l.hef` | MB4-2D | ~6.3 MB | 82.17 % | Hailo-8L (Pi5) |
 
-### Calibration set (HEF 컴파일 재현 용)
+> HEF 는 모두 **QAT (optimization_level=4 + finetune)** 로 컴파일. PTQ 대비 MB4-3D +0.30 %p, MB4-2D +1.31 %p 회복.
+
+### Calibration / finetune set (HEF 재컴파일 용)
 | 파일 | 크기 | 용도 |
 |---|---|---|
-| `calib_ntu60_2k.npy` | ~80 MB | 2,048 표본, [-10, 10] clipping |
+| `calib_ft4k_mb4_3d.npy` | ~300 MB | MB4-3D QAT finetune (60×67=4,020, [-10,10] clip) |
+| `calib_ft4k_mb4_2d.npy` | ~200 MB | MB4-2D QAT finetune (60×67=4,020, [-10,10] clip) |
 
 ## 다운로드 예시
 
@@ -41,10 +38,10 @@ Pre-trained PyTorch (`.pth`) 와 Hailo (`.hef`) 체크포인트는 본 repositor
 mkdir -p checkpoints
 
 # 단일 파일
-wget https://github.com/ldg/psp-net/releases/download/v1.0.0/best_ntu60_mb4_xsub.pth -P checkpoints/
+wget https://github.com/ldgsmhrd/hailo_action/releases/download/v1.0.0/best_mb4_xsub.pth -P checkpoints/
 
 # 전체 (release tag 기준)
-gh release download v1.0.0 --repo ldg/psp-net --dir checkpoints/
+gh release download v1.0.0 --repo ldgsmhrd/hailo_action --dir checkpoints/
 ```
 
 ## 사용 예시
@@ -53,7 +50,7 @@ gh release download v1.0.0 --repo ldg/psp-net --dir checkpoints/
 ```bash
 python scripts/eval.py \
     --config configs/ntu60_psp_mb4.yaml \
-    --ckpt checkpoints/best_ntu60_mb4_xsub.pth
+    --ckpt checkpoints/best_mb4_xsub.pth
 ```
 
 ### NPU 평가 (HEF)

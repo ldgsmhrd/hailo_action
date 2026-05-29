@@ -1,15 +1,15 @@
-"""PSP-Net MB4 — 단일 모델 4-Branch.
+"""PSP-Net MB4-2D — 2D 입력 단일 모델 4-Branch.
 
-기존 MB (2-branch) 를 4-branch 로 확장.
-  - Joint        (x, y, z × 2body = 6 ch)
-  - Joint Motion (vx, vy, vz × 2body = 6 ch)
-  - Bone         (bone_dx, dy, dz × 2body = 6 ch)
-  - Bone Motion  (bone_vx, vy, vz × 2body = 6 ch)
+MB4 (3D, 24ch) 의 2D 입력 버전.
+  - Joint        (x, y × 2body = 4 ch)
+  - Joint Motion (vx, vy × 2body = 4 ch)
+  - Bone         (bx, by × 2body = 4 ch)
+  - Bone Motion  (bvx, bvy × 2body = 4 ch)
 
-총 24 ch 입력 → 4 stream split → 각 branch → fusion → 단일 head.
+총 16 ch 입력 → 4 stream split → 각 branch → fusion → 단일 head.
 
-단일 ONNX / 단일 HEF / NPU 1번 추론.
-파라미터 ~1.5M (MB-3D 와 비슷).
+3D MB4 와 동일한 구조 (4-branch + 1×1 fusion + STDecoupled + SE) 이지만
+입력 채널만 16 으로 축소.  파라미터 ~1.4M.
 """
 import torch
 import torch.nn as nn
@@ -20,37 +20,36 @@ from psp_net.models.psp_blocks import (
 )
 
 
-# 4 stream channel index (24 channel layout)
-# body 0: ch [0-2]=joint, [3-5]=motion, [6-8]=bone, [9-11]=bone_motion
-# body 1: ch [12-14], [15-17], [18-20], [21-23]
-STREAM_INDICES_4 = {
-    'joint':        [0, 1, 2, 12, 13, 14],
-    'joint_motion': [3, 4, 5, 15, 16, 17],
-    'bone':         [6, 7, 8, 18, 19, 20],
-    'bone_motion':  [9, 10, 11, 21, 22, 23],
+# 4 stream channel index (16 channel layout)
+# body 0: ch [0-1]=joint xy, [2-3]=motion xy, [4-5]=bone xy, [6-7]=bone_motion xy
+# body 1: ch [8-9],  [10-11], [12-13], [14-15]
+STREAM_INDICES_4_2D = {
+    'joint':        [0, 1,  8,  9],
+    'joint_motion': [2, 3, 10, 11],
+    'bone':         [4, 5, 12, 13],
+    'bone_motion':  [6, 7, 14, 15],
 }
 
 
-class PSPNetMB4(nn.Module):
-    """4-Branch 단일 모델.
+class PSPNetMB4_2D(nn.Module):
+    """4-Branch 단일 모델 (2D 입력).
 
-    입력: [B, 24, 64, 25]
+    입력: [B, 16, 64, 25]
     출력: [B, num_classes]
     """
 
-    def __init__(self, num_classes=60, in_channels=24, base_ch=48):
+    def __init__(self, num_classes=60, in_channels=16, base_ch=48):
         super().__init__()
-        self.stream_names = list(STREAM_INDICES_4.keys())
+        self.stream_names = list(STREAM_INDICES_4_2D.keys())
 
-        # 4 branch (각 mini PSP-Net)
+        # 4 branch (각 mini PSP-Net) — stream 당 in_ch=4
         self.branches = nn.ModuleDict({
-            name: StreamBranch(in_ch=6, base_ch=base_ch)
+            name: StreamBranch(in_ch=4, base_ch=base_ch)
             for name in self.stream_names
         })
-        out_ch_per_branch = base_ch * 2   # StreamBranch out
+        out_ch_per_branch = base_ch * 2
 
-        # Fusion: 4 × out_ch_per_branch concat
-        fused_ch = out_ch_per_branch * 4    # = 384 (base_ch=48 일 때)
+        fused_ch = out_ch_per_branch * 4    # = 384 (base_ch=48)
         fusion_ch = base_ch * 4              # = 192
         self.fusion = nn.Sequential(
             nn.Conv2d(fused_ch, fusion_ch, 1, bias=False),
@@ -64,23 +63,21 @@ class PSPNetMB4(nn.Module):
         self.head = nn.Linear(fusion_ch, num_classes)
 
         # Channel index 를 buffer 로 등록 (ONNX 호환)
-        for name, idx in STREAM_INDICES_4.items():
+        for name, idx in STREAM_INDICES_4_2D.items():
             self.register_buffer(
                 f'{name}_idx',
                 torch.tensor(idx, dtype=torch.long)
             )
 
     def forward(self, x):
-        # x: [B, 24, T, J]
-        # 4 stream split
+        # x: [B, 16, T, J]
         features = []
         for name in self.stream_names:
             idx = getattr(self, f'{name}_idx')
-            x_stream = x.index_select(1, idx)              # [B, 6, T, J]
+            x_stream = x.index_select(1, idx)              # [B, 4, T, J]
             f = self.branches[name](x_stream)              # [B, base*2, T', 5]
             features.append(f)
 
-        # Fusion
         f = torch.cat(features, dim=1)                     # [B, base*8, T', 5]
         f = self.fusion(f)                                  # [B, base*4, T', 5]
         f = self.se(f)
@@ -89,25 +86,24 @@ class PSPNetMB4(nn.Module):
         return self.head(f)
 
 
-def build_psp_mb4(num_classes=60, in_channels=24, base_ch=48):
-    return PSPNetMB4(num_classes=num_classes, in_channels=in_channels, base_ch=base_ch)
+def build_psp_mb4_2d(num_classes=60, in_channels=16, base_ch=48):
+    return PSPNetMB4_2D(num_classes=num_classes, in_channels=in_channels, base_ch=base_ch)
 
 
 if __name__ == '__main__':
     for base in [32, 48, 64]:
-        model = build_psp_mb4(num_classes=60, in_channels=24, base_ch=base)
+        model = build_psp_mb4_2d(num_classes=60, in_channels=16, base_ch=base)
         n = sum(p.numel() for p in model.parameters())
         print(f"base_ch={base}: params={n/1e6:.2f}M")
 
     print()
-    model = build_psp_mb4(num_classes=60, in_channels=24, base_ch=48)
-    x = torch.randn(2, 24, 64, 25)
+    model = build_psp_mb4_2d(num_classes=60, in_channels=16, base_ch=64)
+    x = torch.randn(2, 16, 64, 25)
     out = model(x)
-    print(f"  base_ch=48: input={tuple(x.shape)}  output={tuple(out.shape)}")
+    print(f"  base_ch=64: input={tuple(x.shape)}  output={tuple(out.shape)}")
 
-    # ONNX export 호환 검증
     try:
-        torch.onnx.export(model, x[:1], '_test_mb4.onnx',
+        torch.onnx.export(model, x[:1], '_test_mb4_2d.onnx',
                           input_names=['input'], output_names=['logits'],
                           opset_version=11, dynamo=False, do_constant_folding=True)
         print("  ✅ ONNX export OK")

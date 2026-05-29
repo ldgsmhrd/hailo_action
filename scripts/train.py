@@ -20,9 +20,8 @@ from torch.utils.data import DataLoader
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, _REPO)
 
-from psp_net.models.psp_net import build_psp_net_ntu
-from psp_net.models.psp_mb import build_psp_mb
 from psp_net.models.psp_mb4 import build_psp_mb4
+from psp_net.models.psp_mb4_2d import build_psp_mb4_2d
 
 
 def get_dataset_module(dataset_name):
@@ -36,16 +35,14 @@ def get_dataset_module(dataset_name):
 
 
 def build_model(model_name, num_classes, in_channels, base_ch):
-    if model_name == 'psp_net':
-        return build_psp_net_ntu(num_classes=num_classes, in_channels=in_channels)
-    elif model_name == 'psp_mb_3d':
-        return build_psp_mb(num_classes=num_classes, in_channels=in_channels,
-                            base_ch=base_ch)
-    elif model_name in ('psp_mb4', 'mb4'):
+    if model_name in ('psp_mb4', 'mb4'):
         return build_psp_mb4(num_classes=num_classes, in_channels=in_channels,
                              base_ch=base_ch)
+    elif model_name in ('psp_mb4_2d', 'mb4_2d'):
+        return build_psp_mb4_2d(num_classes=num_classes, in_channels=in_channels,
+                                base_ch=base_ch)
     else:
-        raise ValueError(f"Unknown model: {model_name}")
+        raise ValueError(f"Unknown model: {model_name} (지원: psp_mb4 [3D], psp_mb4_2d [2D])")
 
 
 def main():

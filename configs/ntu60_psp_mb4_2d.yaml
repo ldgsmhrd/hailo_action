@@ -1,19 +1,19 @@
-# NTU60 Cross-Subject 학습 config — PSP-Net (MB-3D)
-# 결과: 3-seed mean 84.97 ± 0.22 %, INT8 quantization drop 매우 작음 (-0.46 %p)
+# NTU60 Cross-Subject 학습 config — PSP-Net (MB4-2D)
+# MB4 의 입력만 2D (x, y) 로 축소한 변종 — 4-branch + 1×1 fusion 구조는 동일.
 
 model:
-  name: psp_mb_3d
+  name: psp_mb4_2d
   num_classes: 60
-  in_channels: 24
+  in_channels: 16     # 2D + use_body=-1 + bone_motion (4 stream × 2 axes × 2 body)
   base_ch: 64
 
 data:
   dataset: ntu60
-  benchmark: xsub
+  benchmark: xsub     # 또는 xview (NTU60 Cross-View)
   npy_root: data/ntu60/npy
   frames_per_clip: 64
   num_joints: 25
-  use_3d: true
+  use_3d: false       # 핵심 차이 — 2D 입력 (x, y 만, z 좌표 미사용)
   use_body: -1
   use_bone_motion: true
 
@@ -35,7 +35,7 @@ training:
 
 augment:
   flip_prob: 0.5
-  rotation_deg: 15
+  rotation_deg: 15     # 2D 회전 (x, y plane)
   scale_range: 0.15
   translation_range: 0.10
   coord_noise_sigma: 0.01

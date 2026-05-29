@@ -25,25 +25,19 @@ fi
 case "$MODEL" in
     mb4|psp_mb4)
         ONNX="psp_mb4.onnx"
-        SHAPE="1,24,64,25"
+        SHAPE="1,24,64,25"          # MB4-3D: 3D xyz + 2body + bone motion
         OUT="psp_mb4${SUFFIX}"
-        ALLS="deploy/psp_mb_3d.alls"
+        ALLS="deploy/psp_mb4_qat.alls"
         ;;
-    mb_3d|psp_mb_3d)
-        ONNX="psp_mb_3d.onnx"
-        SHAPE="1,24,64,25"
-        OUT="psp_mb_3d${SUFFIX}"
-        ALLS="deploy/psp_mb_3d.alls"
-        ;;
-    mb_2d|psp_mb_2d)
-        ONNX="psp_mb_2d.onnx"
-        SHAPE="1,16,64,25"
-        OUT="psp_mb_2d${SUFFIX}"
-        ALLS="deploy/psp_mb_2d.alls"
+    mb4_2d|psp_mb4_2d)
+        ONNX="psp_mb4_2d.onnx"
+        SHAPE="1,16,64,25"          # MB4-2D: 2D xy + 2body + bone motion
+        OUT="psp_mb4_2d${SUFFIX}"
+        ALLS="deploy/psp_mb4_qat.alls"
         ;;
     *)
         echo "Unknown model: $MODEL"
-        echo "Supported: mb4 (default), mb_3d, mb_2d"
+        echo "Supported: mb4 (MB4-3D, default), mb4_2d (MB4-2D)"
         exit 1
         ;;
 esac
